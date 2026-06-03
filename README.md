@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ShogunX Dashboard
 
-## Getting Started
+Read-only Next.js frontend for monitoring the ShogunX trading system.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router)
+- React + TypeScript
+- Tailwind CSS
+- Axios API client
+
+## Setup
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3001](http://localhost:3001) if port 3000 is used by the Rails API (Next.js will pick the next free port, or set `PORT=3001`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Description |
+|----------|-------------|
+| `API_URL` | Rails origin for Next.js `/api` rewrites (default `http://localhost:3000`) |
+| `NEXT_PUBLIC_API_URL` | Optional direct browser URL; leave unset to proxy via Next (avoids CORS) |
 
-## Learn More
+## Pages
 
-To learn more about Next.js, take a look at the following resources:
+| Route | Description |
+|-------|-------------|
+| `/` | Dashboard overview |
+| `/market-snapshots` | Market snapshot table |
+| `/trade-signals` | Trade signals table |
+| `/orders` | Orders table |
+| `/positions` | Positions table |
+| `/performance` | Performance stats and P/L tables |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API endpoints
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The client calls these read endpoints under `/api/v1`:
 
-## Deploy on Vercel
+- `GET /dashboard` — overview stats
+- `GET /market_snapshots` — snapshot table
+- `GET /trade_signals` — signals table
+- `GET /orders` — orders table
+- `GET /positions` — positions table
+- `GET /performance` — performance stats and P/L series
+- `GET /statistics` — same shape as performance (legacy)
+- `GET /execution` — MT4 execution instruction (not used by dashboard UI)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## View-only
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This app does not expose trade execution controls. No buy/sell or order placement UI is included.
