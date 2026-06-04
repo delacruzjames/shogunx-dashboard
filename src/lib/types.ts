@@ -18,6 +18,19 @@ export interface TradeSignal {
   confidence: number;
   timeframe: string | null;
   reason: string | null;
+  rejection_reason?: string | null;
+  created_at: string;
+}
+
+export interface ActivityLog {
+  id: number;
+  category: string;
+  level: string;
+  message: string;
+  metadata: Record<string, unknown>;
+  market_snapshot_id: number | null;
+  trade_signal_id: number | null;
+  order_id: number | null;
   created_at: string;
 }
 

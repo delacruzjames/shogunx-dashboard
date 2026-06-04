@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 import type {
+  ActivityLog,
   DashboardData,
   ExecutionInstruction,
   MarketSnapshot,
@@ -175,6 +176,17 @@ export const api = {
 
   getExecution: async (): Promise<ExecutionInstruction> => {
     return get<ExecutionInstruction>("/execution");
+  },
+
+  getActivityLogs: async (params?: {
+    limit?: number;
+    since_id?: number;
+  }): Promise<ActivityLog[]> => {
+    const data = await get<{ data: ActivityLog[] }>("/activity_logs", {
+      limit: params?.limit ?? 50,
+      ...(params?.since_id != null ? { since_id: params.since_id } : {}),
+    });
+    return Array.isArray(data.data) ? data.data : unwrapList<ActivityLog>(data);
   },
 
   getStatistics: async (params?: {

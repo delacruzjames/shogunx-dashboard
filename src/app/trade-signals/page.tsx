@@ -38,6 +38,17 @@ const columns: Column<TradeSignal>[] = [
     ),
   },
   {
+    key: "rejection_reason",
+    header: "Rejected",
+    className: "max-w-xs whitespace-normal",
+    render: (row) =>
+      row.rejection_reason ? (
+        <span className="text-amber-400/90">{row.rejection_reason}</span>
+      ) : (
+        "—"
+      ),
+  },
+  {
     key: "created_at",
     header: "Created",
     render: (row) => formatDateTime(row.created_at),
