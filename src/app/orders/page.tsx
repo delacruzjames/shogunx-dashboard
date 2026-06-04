@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { DataTable, type Column } from "@/components/DataTable";
 import { PageError } from "@/components/PageError";
 import { PageLoader } from "@/components/PageLoader";
+import { Pagination } from "@/components/Pagination";
 import { StatusBadge } from "@/components/StatusBadge";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { formatDateTime, formatPrice } from "@/lib/format";
 import type { Order } from "@/lib/types";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
 
 const columns: Column<Order>[] = [
   {
@@ -45,48 +47,32 @@ const columns: Column<Order>[] = [
 ];
 
 export default function OrdersPage() {
-  const [rows, setRows] = useState<Order[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const fetchPage = useCallback((page: number) => api.getOrders({ page }), []);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await api.getOrders();
-        if (!cancelled) setRows(data);
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : "Failed to load orders");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { rows, meta, loading, error, goToPage } = usePaginatedList(
+    fetchPage,
+    "Failed to load orders",
+  );
 
   return (
     <AppLayout
       title="Orders"
       description="Pending and historical orders from the execution pipeline."
     >
-      {loading ? <PageLoader /> : null}
+      {loading && rows.length === 0 ? <PageLoader /> : null}
       {error ? <PageError message={error} /> : null}
-      {!loading && !error ? (
-        <DataTable
-          columns={columns}
-          data={rows}
-          keyExtractor={(row) => row.id}
-          emptyMessage="No orders returned from the API."
-        />
+      {!error ? (
+        <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80">
+          <DataTable
+            columns={columns}
+            data={rows}
+            keyExtractor={(row) => row.id}
+            emptyMessage={loading ? "Loading orders…" : "No orders returned from the API."}
+          />
+          {meta ? (
+            <Pagination meta={meta} onPageChange={goToPage} disabled={loading} />
+          ) : null}
+        </div>
       ) : null}
     </AppLayout>
   );

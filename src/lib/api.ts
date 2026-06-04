@@ -8,6 +8,14 @@ import type {
   Statistics,
   TradeSignal,
 } from "./types";
+import {
+  PAGE_SIZE,
+  type PaginatedResult,
+  type PaginationMeta,
+} from "./pagination";
+
+export type { PaginatedResult, PaginationMeta } from "./pagination";
+export { PAGE_SIZE } from "./pagination";
 
 function resolveApiBase(): string {
   const configured = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
@@ -36,6 +44,47 @@ function unwrapList<T>(payload: unknown): T[] {
     if (Array.isArray(data)) return data as T[];
   }
   return [];
+}
+
+function unwrapPaginated<T>(payload: unknown): PaginatedResult<T> {
+  const data = unwrapList<T>(payload);
+  const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
+  const metaRaw = record.meta;
+
+  if (metaRaw && typeof metaRaw === "object") {
+    const meta = metaRaw as Record<string, unknown>;
+    return {
+      data,
+      meta: {
+        page: Number(meta.page) || 1,
+        per_page: Number(meta.per_page) || PAGE_SIZE,
+        total_count: Number(meta.total_count) || data.length,
+        total_pages: Number(meta.total_pages) || 1,
+      },
+    };
+  }
+
+  return {
+    data,
+    meta: {
+      page: 1,
+      per_page: data.length || PAGE_SIZE,
+      total_count: data.length,
+      total_pages: data.length > 0 ? 1 : 0,
+    },
+  };
+}
+
+type ListQueryParams = {
+  page?: number;
+  per_page?: number;
+};
+
+function listParams(params?: ListQueryParams): Record<string, number> {
+  return {
+    page: params?.page ?? 1,
+    per_page: params?.per_page ?? PAGE_SIZE,
+  };
 }
 
 export class ApiError extends Error {
@@ -76,32 +125,52 @@ async function get<T>(path: string, params?: Record<string, string | number>): P
 export const api = {
   getMarketSnapshots: async (params?: {
     symbol?: string;
-    limit?: number;
-  }): Promise<MarketSnapshot[]> => {
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResult<MarketSnapshot>> => {
     const data = await get<unknown>("/market_snapshots", {
+      ...listParams(params),
       ...(params?.symbol ? { symbol: params.symbol } : {}),
-      ...(params?.limit ? { limit: params.limit } : {}),
     });
-    return unwrapList<MarketSnapshot>(data);
+    return unwrapPaginated<MarketSnapshot>(data);
   },
 
-  getTradeSignals: async (params?: { limit?: number }): Promise<TradeSignal[]> => {
+  getTradeSignals: async (params?: {
+    symbol?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResult<TradeSignal>> => {
     const data = await get<unknown>("/trade_signals", {
-      ...(params?.limit ? { limit: params.limit } : {}),
+      ...listParams(params),
+      ...(params?.symbol ? { symbol: params.symbol } : {}),
     });
-    return unwrapList<TradeSignal>(data);
+    return unwrapPaginated<TradeSignal>(data);
   },
 
-  getOrders: async (): Promise<Order[]> => {
-    const data = await get<unknown>("/orders");
-    return unwrapList<Order>(data);
-  },
-
-  getPositions: async (params?: { status?: string }): Promise<Position[]> => {
-    const data = await get<unknown>("/positions", {
+  getOrders: async (params?: {
+    status?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResult<Order>> => {
+    const data = await get<unknown>("/orders", {
+      ...listParams(params),
       ...(params?.status ? { status: params.status } : {}),
     });
-    return unwrapList<Position>(data);
+    return unwrapPaginated<Order>(data);
+  },
+
+  getPositions: async (params?: {
+    status?: string;
+    symbol?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResult<Position>> => {
+    const data = await get<unknown>("/positions", {
+      ...listParams(params),
+      ...(params?.status ? { status: params.status } : {}),
+      ...(params?.symbol ? { symbol: params.symbol } : {}),
+    });
+    return unwrapPaginated<Position>(data);
   },
 
   getExecution: async (): Promise<ExecutionInstruction> => {

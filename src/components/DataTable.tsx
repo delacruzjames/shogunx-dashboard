@@ -22,14 +22,14 @@ export function DataTable<T extends object>({
 }: DataTableProps<T>) {
   if (data.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-6 py-12 text-center text-sm text-zinc-500">
+      <div className="bg-zinc-900/50 px-6 py-12 text-center text-sm text-zinc-500">
         {emptyMessage}
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80">
+    <div className="overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-zinc-800 text-sm">
           <thead className="bg-zinc-950/60">
