@@ -15,6 +15,7 @@ concurrency:
 env:
   VERCEL_ORG_ID: team_2rfez24A3dfculQ77iGmIBdC
   VERCEL_PROJECT_ID: prj_4ZtgeDUQ0yIVxZdnBG1Hzu5JjVRj
+  PRODUCTION_URL: https://shogunx-dashboard.vercel.app
 
 jobs:
   deploy:
@@ -64,4 +65,16 @@ jobs:
           echo "Deployed to $url"
 
       - name: Health check
-        run: curl -fsS "${{ steps.deploy.outputs.url }}/api/v1/dashboard"
+        run: |
+          echo "Deployment URL: ${{ steps.deploy.outputs.url }}"
+          echo "Checking production alias: $PRODUCTION_URL"
+          for i in 1 2 3 4 5; do
+            if curl -fsS "$PRODUCTION_URL/api/v1/dashboard" > /dev/null; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Waiting for production alias… ($i/5)"
+            sleep 5
+          done
+          echo "::error::Production health check failed at $PRODUCTION_URL/api/v1/dashboard"
+          exit 1
