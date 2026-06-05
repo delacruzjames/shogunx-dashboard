@@ -1,0 +1,67 @@
+name: Deploy to Vercel
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+
+      - name: Deploy target
+        run: |
+          echo "Deploying shogunx-dashboard to Vercel production"
+          echo "Ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}"
+
+      - name: Verify Vercel credentials
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::error::Set VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID in GitHub Actions secrets."
+            exit 1
+          fi
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel environment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy to Vercel
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed to $url"
+
+      - name: Health check
+        run: curl -fsS "${{ steps.deploy.outputs.url }}/api/v1/dashboard"

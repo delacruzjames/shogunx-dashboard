@@ -26,6 +26,36 @@ Open [http://localhost:3001](http://localhost:3001) if port 3000 is used by the 
 | `API_URL` | Rails origin for Next.js `/api` rewrites (default `http://localhost:3000`) |
 | `NEXT_PUBLIC_API_URL` | Optional direct browser URL; leave unset to proxy via Next (avoids CORS) |
 
+## Deploy to Vercel
+
+**Production URL:** https://shogunx-dashboard.vercel.app
+
+### GitHub Actions (`.github/workflows/deploy-vercel.yml`)
+
+Production deploy runs when you **publish a GitHub Release**, or manually from the Actions tab.
+
+Add these **Actions secrets** under **Settings → Secrets and variables → Actions**:
+
+| Secret | How to get it |
+|--------|----------------|
+| `VERCEL_TOKEN` | [Vercel Account → Tokens](https://vercel.com/account/settings/tokens) |
+| `VERCEL_ORG_ID` | Run `npx vercel link` locally, then read `orgId` from `.vercel/project.json` |
+| `VERCEL_PROJECT_ID` | Same file — `projectId` |
+
+Also set **`API_URL`** in the [Vercel project settings](https://vercel.com) (Production environment) — required at **build time** for `/api` rewrites:
+
+```
+https://shogunx-api-7cf0de1a1fc6.herokuapp.com
+```
+
+### Manual deploy (optional)
+
+```bash
+npx vercel link
+printf 'https://shogunx-api-7cf0de1a1fc6.herokuapp.com' | npx vercel env add API_URL production
+npx vercel deploy --prod
+```
+
 ## Pages
 
 | Route | Description |
