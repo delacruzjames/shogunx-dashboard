@@ -26,6 +26,26 @@ Open [http://localhost:3001](http://localhost:3001) if port 3000 is used by the 
 | `API_URL` | Rails origin for Next.js `/api` rewrites (default `http://localhost:3000`) |
 | `NEXT_PUBLIC_API_URL` | Optional direct browser URL; leave unset to proxy via Next (avoids CORS) |
 
+## Deploy to Vercel
+
+1. Import [delacruzjames/shogunx-dashboard](https://github.com/delacruzjames/shogunx-dashboard) on [Vercel](https://vercel.com/new), or from this directory:
+
+   ```bash
+   npx vercel link --yes
+   npx vercel env add API_URL production   # https://shogunx-api-7cf0de1a1fc6.herokuapp.com
+   npx vercel deploy --prod
+   ```
+
+2. Set **Environment Variable** (required at **build time** for `/api` rewrites):
+
+   | Variable | Value |
+   |----------|-------|
+   | `API_URL` | Your Rails API origin, e.g. `https://shogunx-api-7cf0de1a1fc6.herokuapp.com` |
+
+   Leave `NEXT_PUBLIC_API_URL` unset so the browser uses same-origin `/api/*` proxy (no CORS needed on Rails).
+
+3. **Production URL:** https://shogunx-dashboard.vercel.app
+
 ## Pages
 
 | Route | Description |
