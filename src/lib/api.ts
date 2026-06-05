@@ -183,10 +183,21 @@ export const api = {
     since_id?: number;
   }): Promise<ActivityLog[]> => {
     const data = await get<{ data: ActivityLog[] }>("/activity_logs", {
-      limit: params?.limit ?? 50,
+      limit: params?.limit ?? PAGE_SIZE,
       ...(params?.since_id != null ? { since_id: params.since_id } : {}),
     });
     return Array.isArray(data.data) ? data.data : unwrapList<ActivityLog>(data);
+  },
+
+  getActivityLogsPage: async (params?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResult<ActivityLog>> => {
+    const data = await get<unknown>("/activity_logs", {
+      page: params?.page ?? 1,
+      per_page: params?.per_page ?? PAGE_SIZE,
+    });
+    return unwrapPaginated<ActivityLog>(data);
   },
 
   getStatistics: async (params?: {
