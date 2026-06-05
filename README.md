@@ -34,13 +34,15 @@ Open [http://localhost:3001](http://localhost:3001) if port 3000 is used by the 
 
 Production deploy runs when you **publish a GitHub Release**, or manually from the Actions tab.
 
-Add these **Actions secrets** under **Settings → Secrets and variables → Actions**:
+Add one **Actions secret** under **Settings → Secrets and variables → Actions**:
 
 | Secret | How to get it |
 |--------|----------------|
-| `VERCEL_TOKEN` | [Vercel Account → Tokens](https://vercel.com/account/settings/tokens) |
-| `VERCEL_ORG_ID` | Run `npx vercel link` locally, then read `orgId` from `.vercel/project.json` |
-| `VERCEL_PROJECT_ID` | Same file — `projectId` |
+| `VERCEL_TOKEN` | [Vercel Account → Tokens](https://vercel.com/account/settings/tokens) → Create → copy |
+
+If you use a **production** environment with protection rules, add `VERCEL_TOKEN` there too.
+
+Org and project IDs are already set in the workflow file (`team_2rfez24…`, `prj_4ZtgeDU…`).
 
 Also set **`API_URL`** in the [Vercel project settings](https://vercel.com) (Production environment) — required at **build time** for `/api` rewrites:
 
