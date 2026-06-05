@@ -16,6 +16,7 @@ env:
   VERCEL_ORG_ID: team_2rfez24A3dfculQ77iGmIBdC
   VERCEL_PROJECT_ID: prj_4ZtgeDUQ0yIVxZdnBG1Hzu5JjVRj
   PRODUCTION_URL: https://shogunx-dashboard.vercel.app
+  API_URL: https://shogunx-api-7cf0de1a1fc6.herokuapp.com
 
 jobs:
   deploy:
@@ -48,11 +49,13 @@ jobs:
       - name: Pull Vercel environment
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          API_URL: ${{ env.API_URL }}
         run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
       - name: Build
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          API_URL: ${{ env.API_URL }}
         run: vercel build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy to Vercel
@@ -69,12 +72,14 @@ jobs:
           echo "Deployment URL: ${{ steps.deploy.outputs.url }}"
           echo "Checking production alias: $PRODUCTION_URL"
           for i in 1 2 3 4 5; do
-            if curl -fsS "$PRODUCTION_URL/api/v1/dashboard" > /dev/null; then
-              echo "Health check passed"
+            home_ok=$(curl -sS -o /dev/null -w "%{http_code}" "$PRODUCTION_URL/")
+            api_ok=$(curl -sS -o /dev/null -w "%{http_code}" "$PRODUCTION_URL/api/v1/dashboard")
+            if [ "$home_ok" = "200" ] && [ "$api_ok" = "200" ]; then
+              echo "Health check passed (home=$home_ok api=$api_ok)"
               exit 0
             fi
-            echo "Waiting for production alias… ($i/5)"
+            echo "Waiting for production… home=$home_ok api=$api_ok ($i/5)"
             sleep 5
           done
-          echo "::error::Production health check failed at $PRODUCTION_URL/api/v1/dashboard"
+          echo "::error::Production health check failed (home and /api/v1/dashboard must return 200)"
           exit 1
