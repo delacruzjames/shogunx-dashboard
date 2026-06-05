@@ -42,13 +42,7 @@ Add one **Actions secret** under **Settings → Secrets and variables → Action
 
 If you use a **production** environment with protection rules, add `VERCEL_TOKEN` there too.
 
-Org and project IDs are already set in the workflow file (`team_2rfez24…`, `prj_4ZtgeDU…`).
-
-Also set **`API_URL`** in the [Vercel project settings](https://vercel.com) (Production environment) — required at **build time** for `/api` rewrites:
-
-```
-https://shogunx-api-7cf0de1a1fc6.herokuapp.com
-```
+Org and project IDs plus `API_URL` are set in the workflow file. Also keep **`API_URL`** in [Vercel project settings](https://vercel.com) (Production) so manual deploys work.
 
 ### Manual deploy (optional)
 
