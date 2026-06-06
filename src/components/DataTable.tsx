@@ -35,7 +35,7 @@ export function DataTable<T extends object>({
   }
 
   return (
-    <div className="overflow-hidden">
+    <>
       <div className="divide-y divide-zinc-800 md:hidden">
         {data.map((row, index) => (
           <div key={keyExtractor(row, index)} className="px-4 py-4">
@@ -58,7 +58,7 @@ export function DataTable<T extends object>({
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto md:block">
+      <div className="overflow-x-auto max-md:hidden">
         <table className="min-w-full divide-y divide-zinc-800 text-sm">
           <thead className="bg-zinc-950/60">
             <tr>
@@ -89,6 +89,6 @@ export function DataTable<T extends object>({
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }
