@@ -29,7 +29,7 @@ export function Pagination({ meta, onPageChange, disabled = false }: PaginationP
           type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={!canGoPrev}
-          className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-sm text-zinc-200 transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-200 transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3 sm:py-1.5"
         >
           Previous
         </button>
@@ -37,7 +37,7 @@ export function Pagination({ meta, onPageChange, disabled = false }: PaginationP
           type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={!canGoNext}
-          className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-sm text-zinc-200 transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-200 transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3 sm:py-1.5"
         >
           Next
         </button>
